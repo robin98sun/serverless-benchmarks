@@ -76,15 +76,9 @@ class OpenWhiskResources(SelfHostedResources):
         ret._deserialize(ret, config, cached_config)
 
         # Check for new config - overrides but check if it's different
-        # Look for docker_registry in both root level and nested under openwhisk
-        docker_registry_config = None
         if "docker_registry" in config:
-            docker_registry_config = config["docker_registry"]
-        elif "openwhisk" in config and "docker_registry" in config["openwhisk"]:
-            docker_registry_config = config["openwhisk"]["docker_registry"]
-        
-        if docker_registry_config:
-            OpenWhiskResources.initialize(ret, docker_registry_config)
+
+            OpenWhiskResources.initialize(ret, config["docker_registry"])
             ret.logging.info("Using user-provided Docker registry for OpenWhisk.")
             ret.logging_handlers = handlers
 
@@ -93,7 +87,7 @@ class OpenWhiskResources(SelfHostedResources):
                 cached_config
                 and "resources" in cached_config
                 and "docker" in cached_config["resources"]
-                and cached_config["resources"]["docker"] == docker_registry_config
+                and cached_config["resources"]["docker"] == config["docker_registry"]
             ):
                 ret._registry_updated = True
 

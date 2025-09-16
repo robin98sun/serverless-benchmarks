@@ -264,6 +264,7 @@ class OpenWhisk(System):
             code_package.language_name,
             code_package.language_version,
             code_package.architecture,
+            registry=self.config.resources.docker_registry,
         )
         try:
             subprocess.run(
