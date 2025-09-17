@@ -174,15 +174,17 @@ class PerfCost(Experiment):
                     for res in results:
                         try:
                             ret = res.get()
-                            # including the first iteration anyway
+                            # including the first iteration anyway in the reports but not for runtime statistics
                             if first_iteration:
                                 pass
+                            else:
+                                # not counting the first iteration for runtime statistics
+                                client_times.append(ret.times.client / 1000.0)
+                                samples_gathered += 1
 
                             # Always include all invocations regardless of cold/warm status
                             result.add_invocation(self._function, ret)
                             colds_count += ret.stats.cold_start
-                            client_times.append(ret.times.client / 1000.0)
-                            samples_gathered += 1
                             
                             # Log the actual status for information
                             if run_type == PerfCost.RunType.COLD and not ret.stats.cold_start:
