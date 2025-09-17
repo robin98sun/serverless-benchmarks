@@ -174,8 +174,10 @@ class PerfCost(Experiment):
                     for res in results:
                         try:
                             ret = res.get()
+                            # including the first iteration anyway
                             if first_iteration:
-                                continue
+                                pass
+
                             # Always include all invocations regardless of cold/warm status
                             result.add_invocation(self._function, ret)
                             colds_count += ret.stats.cold_start
@@ -196,7 +198,7 @@ class PerfCost(Experiment):
                     samples_generated += invocations
                     if first_iteration:
                         self.logging.info(
-                            f"Processed {samples_gathered} warm-up samples, ignoring these results."
+                            f"In the first iteration, processed {samples_gathered} warm-up samples, included anyway."
                         )
                     else:
                         self.logging.info(
