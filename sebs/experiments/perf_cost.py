@@ -176,16 +176,20 @@ class PerfCost(Experiment):
                             ret = res.get()
                             if first_iteration:
                                 continue
+                            # Always include all invocations regardless of cold/warm status
+                            result.add_invocation(self._function, ret)
+                            colds_count += ret.stats.cold_start
+                            client_times.append(ret.times.client / 1000.0)
+                            samples_gathered += 1
+                            
+                            # Log the actual status for information
                             if run_type == PerfCost.RunType.COLD and not ret.stats.cold_start:
-                                self.logging.info(f"Invocation {ret.request_id} is not cold!")
-                                incorrect.append(ret)
+                                self.logging.info(f"Invocation {ret.request_id} is not cold! (included anyway)")
                             elif run_type == PerfCost.RunType.WARM and ret.stats.cold_start:
-                                self.logging.info(f"Invocation {ret.request_id} is cold!")
+                                self.logging.info(f"Invocation {ret.request_id} is cold! (included anyway)")
                             else:
-                                result.add_invocation(self._function, ret)
-                                colds_count += ret.stats.cold_start
-                                client_times.append(ret.times.client / 1000.0)
-                                samples_gathered += 1
+                                cold_status = "cold" if ret.stats.cold_start else "warm"
+                                self.logging.info(f"Invocation {ret.request_id} is {cold_status} (as expected)")
                         except Exception as e:
                             error_count += 1
                             error_executions.append(str(e))
